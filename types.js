@@ -15,8 +15,8 @@ const AuthorType = new GraphQLObjectType({
     id: { type: GraphQLNonNull(GraphQLInt) },
     name: { type: GraphQLNonNull(GraphQLString) },
     books: {
-      type: new GraphQLList(BookType) ,
-      resolve: (author) => books.filter(book => book.authorId === author.id)
+      type: new GraphQLList(BookType),
+      resolve: (author) => books.filter((book) => book.authorId === author.id),
     },
   }),
 })
@@ -43,9 +43,9 @@ const RootQueryType = new GraphQLObjectType({
       type: BookType,
       description: 'A Single Book',
       args: {
-        id: { type: GraphQLInt }
+        id: { type: GraphQLInt },
       },
-      resolve: (parent, args) => books.find(book => book.id === args.id),
+      resolve: (parent, args) => books.find((book) => book.id === args.id),
     },
     books: {
       type: new GraphQLList(BookType),
@@ -61,14 +61,55 @@ const RootQueryType = new GraphQLObjectType({
       type: AuthorType,
       description: 'A Single Authors',
       args: {
-        id: { type: GraphQLInt }
+        id: { type: GraphQLInt },
       },
-      resolve: (parent, args) => authors.find(author => author.id === args.id),
+      resolve: (parent, args) =>
+        authors.find((author) => author.id === args.id),
     },
+  }),
+})
+
+const RootMutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  description: 'Root Mutation',
+  fields: () => ({
+    addBook: {
+      type: BookType,
+      description: 'Add A book',
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        authorId: { type: GraphQLNonNull(GraphQLInt) },
+      },
+      resolve: (parent, args) => {
+        const book = {
+          id: books.length + 1,
+          name: args.name,
+          authorId: args.authorId,
+        }
+        books.push(book)
+        return book
+      },
+    },
+    addAuthor: {
+      type: AuthorType,
+      description: 'Add An Author',
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: (parent, args) => {
+        const author = {
+          id: authors.length + 1,
+          name: args.name,
+        }
+        authors.push(author)
+        return author
+      },
+    }
   }),
 })
 
 module.exports = {
   BookType,
   RootQueryType,
+  RootMutationType,
 }
